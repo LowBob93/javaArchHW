@@ -15,7 +15,7 @@ public class HTTPServer {
     private static final Logger logger = new ConsoleLogger();
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(8088)) {
+        try (ServerSocket serverSocket = new ServerSocket(8189)) {
             logger.getInfo("Server started!");
 
             while (true) {

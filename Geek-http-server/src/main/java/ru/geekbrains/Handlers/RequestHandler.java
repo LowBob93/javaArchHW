@@ -1,24 +1,27 @@
 package ru.geekbrains.Handlers;
 
+import ru.geekbrains.request.RequestParserImpl;
+import ru.geekbrains.Response.ResponseSerializerImpl;
 import ru.geekbrains.Services.SocketService;
+import ru.geekbrains.domain.HttpResponse;
 import ru.geekbrains.loggers.ConsoleLogger;
 import ru.geekbrains.loggers.Logger;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
 
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestHandler implements Runnable {
 
-    private static final String WWW = "F:\\JavaProjects\\webserver\\www";
-
+    private static final String WWW = "D:\\javaArchHW\\Geek-http-server\\www\\index.html";
     private static final Logger logger = new ConsoleLogger();
-
     private final SocketService socketService;
 
     public RequestHandler(SocketService socketService) {
@@ -27,33 +30,25 @@ public class RequestHandler implements Runnable {
 
     @Override
     public void run() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "text/html; charset=utf-8");
 
         List<String> request = socketService.readRequest();
-        String headers;
 
-        String[] parts = request.get(0).split(" ");
-
-        Path path = Paths.get(WWW, parts[1]);
+        Path path = Paths.get(WWW, new RequestParserImpl().parse(request).getPath());
         if (!Files.exists(path)) {
-            headers = "HTTP/1.1 404 NOT_FOUND\n" +
-                    "Content-Type: text/html; charset=utf-8\n\n";
-
-            socketService.writeResponse(headers,
-                    new BufferedReader(new StringReader("<h1>Файл не найден!</h1>\n")));
-
-        } else {
-            headers = "HTTP/1.1 200 OK\n" +
-                    "Content-Type: text/html; charset=utf-8\n\n";
-
-            try {
-                socketService.writeResponse(headers,
-                        Files.newBufferedReader(path));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            HttpResponse response = new HttpResponse(404, headers, new StringReader("<h1>Файл не найден!</h1>\n"));
+            socketService.writeResponse(response, new ResponseSerializerImpl());
+            return;
         }
 
-        logger.getInfo(String.format("Client disconnected with response: %s",
-                headers));
+        try {
+            HttpResponse response = new HttpResponse(200, headers, Files.newBufferedReader(path));
+            socketService.writeResponse(response, new ResponseSerializerImpl());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        logger.getInfo("Client disconnected!");
     }
 }
+

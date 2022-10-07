@@ -1,5 +1,7 @@
 package ru.geekbrains.Services;
 
+import ru.geekbrains.Response.ResponseSerializer;
+import ru.geekbrains.domain.HttpResponse;
 import ru.geekbrains.loggers.ConsoleLogger;
 import ru.geekbrains.loggers.Logger;
 
@@ -41,12 +43,11 @@ public class SocketService implements Closeable {
         }
     }
 
-    public void writeResponse(String headers, BufferedReader reader) {
-
+    public void writeResponse(HttpResponse response, ResponseSerializer serializer) {
         try {
             PrintWriter output = new PrintWriter(socket.getOutputStream());
-            output.print(headers);
-            reader.transferTo(output);
+            String responseString = serializer.serialize(response);
+            output.print(responseString);
             output.flush();
         } catch (IOException e) {
             throw new IllegalStateException(e);

@@ -1,16 +1,15 @@
 package ru.geekbrains.Handlers;
 
+import ru.geekbrains.loggers.LoggerFactory;
 import ru.geekbrains.request.RequestParserImpl;
 import ru.geekbrains.Response.ResponseSerializerImpl;
 import ru.geekbrains.Services.SocketService;
 import ru.geekbrains.domain.HttpResponse;
-import ru.geekbrains.loggers.ConsoleLogger;
+
 import ru.geekbrains.loggers.Logger;
 
 
-import java.io.IOException;
-
-import java.io.StringReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,8 +19,10 @@ import java.util.Map;
 
 public class RequestHandler implements Runnable {
 
-    private static final String WWW = "D:\\javaArchHW\\Geek-http-server\\www\\index.html";
-    private static final Logger logger = new ConsoleLogger();
+    private static final String WWW = "C:/Users/siarh/IdeaProjects/arhitecture-gb-webserver/www/";
+
+    private static final Logger logger = LoggerFactory.create("RequestHandlerLog.txt");
+
     private final SocketService socketService;
 
     public RequestHandler(SocketService socketService) {
@@ -37,18 +38,27 @@ public class RequestHandler implements Runnable {
 
         Path path = Paths.get(WWW, new RequestParserImpl().parse(request).getPath());
         if (!Files.exists(path)) {
-            HttpResponse response = new HttpResponse(404, headers, new StringReader("<h1>Файл не найден!</h1>\n"));
+            HttpResponse response = HttpResponse.createResponseBuilder()
+                    .withStatusCode(404)
+                    .withHeaders(headers)
+                    .withBody(new StringReader("<h1>Файл не найден!</h1>\n"))
+                    .build();
             socketService.writeResponse(response, new ResponseSerializerImpl());
             return;
         }
 
         try {
-            HttpResponse response = new HttpResponse(200, headers, Files.newBufferedReader(path));
+            HttpResponse response = HttpResponse.createResponseBuilder()
+                    .withStatusCode(200)
+                    .withHeaders(headers)
+                    .withBody(Files.newBufferedReader(path))
+                    .build();
+
             socketService.writeResponse(response, new ResponseSerializerImpl());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         logger.getInfo("Client disconnected!");
     }
 }
-

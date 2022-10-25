@@ -1,6 +1,7 @@
 package ru.geekbrains.domain;
 
 
+import javax.swing.plaf.synth.SynthRadioButtonMenuItemUI;
 import java.io.Reader;
 import java.util.Map;
 
@@ -10,33 +11,43 @@ public class HttpResponse {
     private Map<String, String> headers;
     private Reader body;
 
-    public HttpResponse(int statusCode, Map<String, String> headers, Reader body) {
-        this.statusCode = statusCode;
-        this.headers = headers;
-        this.body = body;
+    private HttpResponse() {
     }
 
     public int getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
     public Map<String, String> getHeaders() {
         return headers;
-    }
-
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
     }
 
     public Reader getBody() {
         return body;
     }
+    public static ResponseBuilder createResponseBuilder(){
+        return new ResponseBuilder();
+    }
+    public static class ResponseBuilder{
+        private HttpResponse response = new HttpResponse();
 
-    public void setBody(Reader body) {
-        this.body = body;
+        private ResponseBuilder() {
+        }
+
+        public ResponseBuilder withStatusCode(int statusCode){
+            this.response.statusCode = statusCode;
+            return this;
+        }
+        public ResponseBuilder withHeaders(Map<String, String> headers){
+            this.response.headers = headers;
+            return this;
+        }
+        public ResponseBuilder withBody(Reader body){
+            this.response.body = body;
+            return this;
+        }
+        public HttpResponse build(){
+            return response;
+        }
     }
 }

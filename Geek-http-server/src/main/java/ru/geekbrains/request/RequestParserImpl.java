@@ -10,6 +10,7 @@ public class RequestParserImpl implements RequestParser {
     @Override
     public HttpRequest parse(List<String> rawRequest) {
         String method = rawRequest.get(0).split(" ")[0];
+
         String path = rawRequest.get(0).split(" ")[1];
         String body;
 
@@ -32,7 +33,13 @@ public class RequestParserImpl implements RequestParser {
             }
             body = builder.toString();
         }
+        HttpRequest request = HttpRequest.createRequestBuilder()
+                .withMethod(method)
+                .withPath(path)
+                .withHeader(headers)
+                .withBody(body)
+                .build();
 
-        return new HttpRequest(method, path, headers, body);
+        return request;
     }
 }

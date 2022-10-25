@@ -2,8 +2,8 @@ package ru.geekbrains.Services;
 
 import ru.geekbrains.Response.ResponseSerializer;
 import ru.geekbrains.domain.HttpResponse;
-import ru.geekbrains.loggers.ConsoleLogger;
 import ru.geekbrains.loggers.Logger;
+import ru.geekbrains.loggers.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,7 +15,7 @@ public class SocketService implements Closeable {
 
     private final Socket socket;
 
-    private static final Logger logger = new ConsoleLogger();
+    private static final Logger logger = LoggerFactory.create();
 
     public SocketService(Socket socket) {
         this.socket = socket;

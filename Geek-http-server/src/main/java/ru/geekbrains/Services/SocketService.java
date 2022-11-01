@@ -14,9 +14,7 @@ import java.util.List;
 public class SocketService implements Closeable {
 
     private final Socket socket;
-
     private static final Logger logger = LoggerFactory.create();
-
     public SocketService(Socket socket) {
         this.socket = socket;
     }
@@ -61,4 +59,5 @@ public class SocketService implements Closeable {
             socket.close();
         }
     }
+
 }
